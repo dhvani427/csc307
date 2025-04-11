@@ -6,12 +6,23 @@ import Form from "./Form";
 function MyApp() {
     const [characters, setCharacters] = useState([]);
   
-    function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-          return i !== index;
-        });
-        setCharacters(updated);
+    //DELETE on backend
+    function removeOneCharacter(id) {
+
+      fetch(`http://localhost:8000/users/${id}`, {
+        method: "DELETE"
+      })
+      .then((res) => {
+        if (res.status == 204){
+          setCharacters(characters.filter((character, i) => i !== id));
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
     }
+
+  
 
     function updateList(person) {
       setCharacters([...characters, person]);
@@ -30,7 +41,7 @@ function MyApp() {
     }, [] );
 
     function postUser(person) {
-      const promise = fetch("Http://localhost:8000/users", {
+      const promise = fetch("http://localhost:8000/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,9 +52,15 @@ function MyApp() {
       return promise;
     }
 
+    
     function updateList(person) { 
       postUser(person)
-        .then(() => setCharacters([...characters, person]))
+        .then((res) => {
+          if (res.status != 201) //Use 201 Content Created
+            throw new Error("Error: User could not be added");
+          return res.json();
+        })
+        .then((newperson) => setCharacters([...characters, newperson])) //Return newly created object from POST
         .catch((error) => {
           console.log(error);
         })

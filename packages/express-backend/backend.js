@@ -2,7 +2,6 @@
 import express from "express";
 import cors from "cors";
 
-
 const app = express();
 const port = 8000;
 
@@ -55,16 +54,25 @@ const findUserByNameAndJob = (name,job) => {
   return users["users_list"].filter((user) => user["job"] === job && user["name"] === name);
 };
 
+//Generate ID on server
+const randomId = () => {
+  const chars = "abcdefghijklmnopqrstuvwxyz";
+  const nums = "0123456789";
+
+  const letters = [...Array(3)].map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const digits = [...Array(3)].map(() => nums[Math.floor(Math.random() * nums.length)]).join('');
+
+  return letters + digits
+  }
+  
+
 
 const addUser = (user) => {
   users["users_list"].push(user);
   return user;
 };
 
-const deleteUser = (user) => {
-  users["users_list"].pop(user);
-  return user;
-};
+
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -101,15 +109,21 @@ app.get("/users/:id", (req, res) => {
 
 app.delete("/users/:id", (req, res) => {
   const id = req.params.id;
-  const userToDelete = findUserById(id);
-  deleteUser(userToDelete);
-  res.send();
+  const prevlength = users["users_list"].length;
+  users["users_list"] = users["users_list"].filter(user => user.id !== id);
+  if (users["users_list"].length === prevlength) {
+    res.status(404).send("User not found.");
+  } else {
+    res.status(204).send(); 
+  }
 });
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
+  userToAdd["id"] = randomId();
+  //console.log(userToAdd);
   addUser(userToAdd);
-  res.send();
+  res.status(201).send(); //Use 201 Content Created
 });
 
 app.listen(port, () => {
