@@ -14,18 +14,12 @@ function MyApp() {
       })
       .then((res) => {
         if (res.status == 204){
-          setCharacters(characters.filter((character, i) => i !== id));
+          setCharacters((prev) => prev.filter((user) => user.id !== id));
         }
       })
       .catch((error) => {
         console.log(error);
       })
-    }
-
-  
-
-    function updateList(person) {
-      setCharacters([...characters, person]);
     }
 
     function fetchUsers() {
@@ -56,11 +50,15 @@ function MyApp() {
     function updateList(person) { 
       postUser(person)
         .then((res) => {
-          if (res.status != 201) //Use 201 Content Created
+          if (res.status != 201){ //Use 201 Content Created
             throw new Error("Error: User could not be added");
+          }
           return res.json();
         })
-        .then((newperson) => setCharacters([...characters, newperson])) //Return newly created object from POST
+        .then((newperson) => { 
+          console.log("User added:", newperson);
+          setCharacters((prev) => [...prev, newperson]);
+        })
         .catch((error) => {
           console.log(error);
         })

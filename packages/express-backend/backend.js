@@ -123,7 +123,7 @@ app.post("/users", (req, res) => {
   userToAdd["id"] = randomId();
   //console.log(userToAdd);
   addUser(userToAdd);
-  res.status(201).send(); //Use 201 Content Created
+  res.status(201).send(userToAdd); //Use 201 Content Created
 });
 
 app.listen(port, () => {
