@@ -1,13 +1,15 @@
 // backend.js
 import express from "express";
 import cors from "cors";
+import userServices from "./user-services.js";
 
 const app = express();
 const port = 8000;
 
+
 const users = {
   users_list: [
-    {
+    /*{
       id: "xyz789",
       name: "Charlie",
       job: "Janitor"
@@ -31,7 +33,7 @@ const users = {
       id: "zap555",
       name: "Dennis",
       job: "Bartender"
-    }
+    }*/
   ]
 };
 
@@ -54,7 +56,7 @@ const findUserByNameAndJob = (name,job) => {
   return users["users_list"].filter((user) => user["job"] === job && user["name"] === name);
 };
 
-//Generate ID on server
+
 const randomId = () => {
   const chars = "abcdefghijklmnopqrstuvwxyz";
   const nums = "0123456789";
@@ -78,10 +80,23 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+//IA4
 app.get("/users", (req, res) => {
   const name = req.query.name;
   const job = req.query.job;
-  if (job!= undefined && name != undefined){
+
+  userServices.getUsers(name,job)
+    .then((result) => {
+        if (result) res.send(result);
+        else res.status(404).send(`Not Found: ${name,job}`);
+      })
+    .catch((error) => {
+      res.status(500).send(error.name);
+    });
+
+  });
+  
+  /*  if (job!= undefined && name != undefined){
     const result = findUserByNameAndJob(name, job);
     res.send({ users_list: result });
   }
@@ -95,36 +110,75 @@ app.get("/users", (req, res) => {
   } else {
     res.send(users);
   }
-});
+});*/
 
+//IA4
 app.get("/users/:id", (req, res) => {
   const id = req.params.id;
+  
+  userServices.findUserById(id)
+    .then((result) => {
+      if (result) res.send(result);
+      else res.status(404).send(`Not Found: ${id}`);
+      })
+    .catch((error) => {
+      res.status(500).send(error.name);
+  });
+});
+
+  /*
   const result = findUserById(id);
+
   if (result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
   }
 });
+*/
 
+//IA4
 app.delete("/users/:id", (req, res) => {
   const id = req.params.id;
+
+  userServices.deleteUser(id)
+    .then((deletedUser) => {
+      if (!deletedUser) {
+        res.status(404).send("User not found.");
+      } else {
+        res.status(204).send();
+      }
+    })
+    .catch((error) => {
+      res.status(500).send(error.name);
+    });
+
+
+
+  /*
   const prevlength = users["users_list"].length;
   users["users_list"] = users["users_list"].filter(user => user.id !== id);
   if (users["users_list"].length === prevlength) {
     res.status(404).send("User not found.");
   } else {
     res.status(204).send(); 
-  }
+  }*/
 });
 
-app.post("/users", (req, res) => {
+//IA4
+app.post("/users", async (req, res) => {
   const userToAdd = req.body;
+
+  userServices.addUser(userToAdd)
+    .then((result) => res.status(201).send(result));
+});
+
+  /*
   userToAdd["id"] = randomId();
   //console.log(userToAdd);
   addUser(userToAdd);
   res.status(201).send(userToAdd); //Use 201 Content Created
-});
+});*/
 
 app.listen(port, () => {
   console.log(

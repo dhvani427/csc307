@@ -14,7 +14,7 @@ function MyApp() {
       })
       .then((res) => {
         if (res.status == 204){
-          setCharacters((prev) => prev.filter((user) => user.id !== id));
+          setCharacters((prev) => prev.filter((user) => user._id !== id));
         }
       })
       .catch((error) => {
@@ -30,7 +30,7 @@ function MyApp() {
     useEffect(() => {
       fetchUsers()
         .then((res) => res.json())
-        .then((json) => setCharacters(json["users_list"]))
+        .then((json) => setCharacters(json)) //changed this
         .catch((error) => { console.log(error); });
     }, [] );
 
